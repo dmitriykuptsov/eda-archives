@@ -9,3 +9,6 @@ pillow
 qrcode
 weasyprint
 pycryptodome
+jinja2
+stripe
+python-multipart

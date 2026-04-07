@@ -1,7 +1,7 @@
 from celery import Celery
 from app.db import SessionLocal
 from app.models import Order
-from app.services import generate_facts, generate_movies, generate_songs, generate_prices
+from app.prompts import generate_facts, generate_movies, generate_songs, generate_prices
 from app.utils import get_date_formatted
 from PIL import Image
 import qrcode
