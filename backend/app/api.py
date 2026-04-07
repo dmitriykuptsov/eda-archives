@@ -196,8 +196,8 @@ def cancel_order(order_id: int):
 
     return {"success": True, "status": "cancelled"}
 
-@router.get("/was_paied/{order_id}/{secret}")
-def was_paied(order_id: int, secret: str):
+@router.get("/was_paid/{order_id}/{secret}")
+def was_paid(order_id: int, secret: str):
     db = SessionLocal()
     order = db.query(Order).filter(
                 Order.id == order_id,
