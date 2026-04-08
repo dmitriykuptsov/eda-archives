@@ -12,7 +12,7 @@ from binascii import hexlify
 
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR") if os.getenv("UPLOAD_DIR") else "/storage/uploads"
 OUTPUT_DIR = os.getenv("OUTPUT_DIR") if os.getenv("OUTPUT_DIR") else "/storage/reports"
@@ -23,14 +23,20 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 @router.post("/order")
 async def create_order_with_payment(
-    date: str = Form(...),
-    location: str = Form(...),
-    name: str = Form(...),
-    email: str = Form(...),
-    file: UploadFile = File(...)
+    date: str = Form(None),
+    location: str = Form(None),
+    name: str = Form(None),
+    email: str = Form(None),
+    file: UploadFile = File(None)
 ):
     
-    if not re.match(r"^[0-9A-Za-z_]+.(JPG|JPEG)$", file.filename):
+    if not file:
+        return {
+            "success": False, 
+            "reason": "Invalid filename. Should be JPG or JPEG file"
+        }
+    
+    if not re.match(r"^[0-9A-Za-z_]+.(JPG|JPEG|jpg|jpeg)$", file.filename):
         return {
             "success": False, 
             "reason": "Invalid filename. Should be JPG or JPEG file"
@@ -56,7 +62,7 @@ async def create_order_with_payment(
     
     file_bytes = await file.read()
 
-    if not validate_jpeg(file_bytes) or not is_jpeg_magic(file_bytes):
+    if not is_jpeg_magic(file_bytes):
         return {
             "success": False, 
             "reason": "Invalid image file. Should be JPEG file"
@@ -82,8 +88,8 @@ async def create_order_with_payment(
             "quantity": 1,
         }],
         mode="payment",
-        success_url=f"https://eda-archives.com/payment_success",
-        cancel_url=f"https://eda-archives.com/payment_cancel/{order.id}",
+        success_url=f"https://eda-archives.com/api/payment_success",
+        cancel_url=f"https://eda-archives.com/api/payment_cancel/{order.id}",
         metadata={"order_id": order.id}
     )
 
@@ -91,14 +97,19 @@ async def create_order_with_payment(
 
 @router.post("/order_without_payment")
 async def create_order_without_payment(
-    date: str = Form(...),
-    location: str = Form(...),
-    name: str = Form(...),
-    email: str = Form(...),
-    file: UploadFile = File(...)
+    date: str = Form(None),
+    location: str = Form(None),
+    name: str = Form(None),
+    email: str = Form(None),
+    file: UploadFile = File(None)
 ):
-
-    if not re.match(r"^[0-9A-Za-z_]+.(JPG|JPEG)$", file.filename):
+    if not file:
+        return {
+            "success": False, 
+            "reason": "Invalid filename. Should be JPG or JPEG file"
+        }
+    
+    if not re.match(r"^[0-9A-Za-z_]+.(JPG|JPEG|jpg|jpeg)$", file.filename):
         return {
             "success": False, 
             "reason": "Invalid filename. Should be JPG or JPEG file"
@@ -124,7 +135,8 @@ async def create_order_without_payment(
     
     file_bytes = await file.read()
 
-    if not validate_jpeg(file_bytes) or not is_jpeg_magic(file_bytes):
+    #if not validate_jpeg(file_bytes):# or 
+    if not is_jpeg_magic(file_bytes):
         return {
             "success": False, 
             "reason": "Invalid image file. Should be JPEG file"
@@ -136,7 +148,7 @@ async def create_order_without_payment(
 
     secret = hexlify(urandom(128)).decode("ASCII")
     order = create_order(secret, date, location, name, email, file_path)
-    trigger_task.delay(order.id)
+    trigger_task(order.id)
 
     return {
         "success": True, 
@@ -173,7 +185,7 @@ async def stripe_success(request: Request):
         order.status = "paid"
         db.commit()
 
-        trigger_task.delay(order_id)
+        trigger_task(order_id)
 
         return {"success": True, "order_id": order_id}
     

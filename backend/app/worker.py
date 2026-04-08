@@ -8,6 +8,8 @@ import qrcode
 from weasyprint import HTML
 from jinja2 import Template
 import os
+from io import BytesIO
+import base64
 
 celery = Celery(__name__, broker="redis://redis:6379/0")
 
@@ -19,11 +21,16 @@ HTML_TEMPLATE = """
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>EDA Archive Report</title>
+<title>EDA Archives Report</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Libre+Baskerville&display=swap" rel="stylesheet">
 
 <style>
+
+@page {
+    size: A4 landscape;
+}
+
 body {
     margin: 0;
     background: #f4ecd8;
@@ -32,7 +39,8 @@ body {
 }
 
 .page {
-    width: 800px;
+    width: 100%;
+    max-width: 100%;
     margin: 40px auto;
     padding: 40px;
     background: #fdf6e3;
@@ -63,6 +71,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-gap: 20px;
+    
 }
 
 /* Sections */
@@ -85,8 +94,7 @@ body {
 }
 
 .photo img {
-    width: 100%;
-    max-height: 300px;
+    width: 200px;
     object-fit: cover;
     border: 1px solid black;
 }
@@ -112,8 +120,8 @@ ul {
 <div class="page">
 
     <div class="header">
-        <div class="title">EDA ARCHIVE</div>
-        <div class="subtitle">Historical Report — {{date}} — {{location}}</div>
+        <div class="title">EDA ARCHIVES</div>
+        <div class="subtitle">Super start {{name}} was born on {{date}} in {{location}}</div>
     </div>
 
     <div class="photo">
@@ -127,7 +135,7 @@ ul {
             <h2>Major Events</h2>
             <ul>
                 {% for fact in facts %}
-                <li>{{ fact["title"] }} {{ fact["description"] }}</li>
+                <li>{{ fact["title"] }}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -137,7 +145,7 @@ ul {
             <h2>Movies</h2>
             <ul>
                 {% for movie in movies %}
-                <li>{{ movie["title"] }} {{ movie["description"] }}</li>
+                <li>{{ movie["title"] }} </li>
                 {% endfor %}
             </ul>
         </div>
@@ -147,7 +155,7 @@ ul {
             <h2>Top Songs</h2>
             <ul>
                 {% for song in songs %}
-                <li>{{ song["title"] }} {{ song["description"] }}</li>
+                <li>{{ song["title"] }} </li>
                 {% endfor %}
             </ul>
         </div>
@@ -163,8 +171,20 @@ ul {
 </html>
 """
 
+def pil_to_base64(img: Image.Image) -> str:
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")  # or JPEG
+    img_bytes = buffer.getvalue()
+
+    base64_str = base64.b64encode(img_bytes).decode("utf-8")
+
+    return f"data:image/jpg;base64,{base64_str}"
+
 @celery.task
 def generate_report(order_id):
+    print("___________^^_____________")
+    print(".....Starting Celary task.....")
+    print("___________^^_____________")
     db = SessionLocal()
     order = db.query(Order).get(order_id)
 
@@ -172,29 +192,30 @@ def generate_report(order_id):
         return
 
     # 1. Generate facts, movies, and songs
-    facts = generate_facts(get_date_formatted(order.date)).get("headlines", [])
-    movies = generate_movies(get_date_formatted(order.date)).get("movies", [])
-    songs = generate_songs(get_date_formatted(order.date)).get("songs", [])
-    prices = generate_prices(get_date_formatted(order.date)).get("item", [])
+    facts = generate_facts(order.date).get("headlines", [])
+    movies = generate_movies(order.date).get("movies", [])
+    songs = generate_songs(order.date).get("songs", [])
+    prices = generate_prices(order.date).get("item", [])
 
     # 2. Process image
     img = Image.open(order.image_path).convert("L")
-    processed_path = f"{OUTPUT_DIR}/processed_{order_id}.png"
-    img.save(processed_path)
-
+    #processed_path = f"{OUTPUT_DIR}/processed_{order_id}.png"
+    #img.save(processed_path)
+    img_base64 = pil_to_base64(img)
     # 3. Generate QR (dummy Spotify link)
     qr_path = f"{OUTPUT_DIR}/spotify_qr_{order_id}.png"
     qrcode.make("https://spotify.com").save(qr_path)
 
     # 4. Render HTML
     html = Template(HTML_TEMPLATE).render(
+        name=order.name,
         date=order.date,
         location=order.location,
         facts=facts,
         movies=movies,
         songs=songs,
         prices=prices,
-        image=processed_path,
+        image=img_base64,
         qr=qr_path
     )
 

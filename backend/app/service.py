@@ -3,6 +3,7 @@ from app.models import Order
 from app.worker import generate_report
 
 def create_order(secret, date, location, name, email, image_path):
+    print("************ CREATING ORDER ******************")
     db = SessionLocal()
     order = Order(
         secret=secret,

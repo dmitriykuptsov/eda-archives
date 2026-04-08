@@ -33,6 +33,6 @@ export default {
 .spinner {
   position: absolute;
   bottom: calc(50%);
-  right: calc(50% - 30px);
+  right: calc(50% - 100px);
 }
 </style>

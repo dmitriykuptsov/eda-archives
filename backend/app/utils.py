@@ -1,4 +1,4 @@
-from Crypto.Hash import SHA256
+from Cryptodome.Hash import SHA256
 import datetime
 from PIL import Image
 from io import BytesIO

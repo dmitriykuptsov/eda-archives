@@ -1,5 +1,6 @@
 from openai import OpenAI
 import os
+from json import loads
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -14,7 +15,7 @@ def generate_facts(date):
         }],
         response_format={"type": "json_object"}
     )
-    return response.choices[0].message.content
+    return loads(response.choices[0].message.content)
 
 
 def generate_movies(date):
@@ -26,7 +27,7 @@ def generate_movies(date):
         }],
         response_format={"type": "json_object"}
     )
-    return response.choices[0].message.content
+    return loads(response.choices[0].message.content)
 
 def generate_songs(date):
     response = client.chat.completions.create(
@@ -37,7 +38,7 @@ def generate_songs(date):
         }],
         response_format={"type": "json_object"}
     )
-    return response.choices[0].message.content
+    return loads(response.choices[0].message.content)
 
 def generate_prices(date):
     response = client.chat.completions.create(
@@ -48,4 +49,4 @@ def generate_prices(date):
         }],
         response_format={"type": "json_object"}
     )
-    return response.choices[0].message.content
+    return loads(response.choices[0].message.content)

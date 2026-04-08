@@ -8,7 +8,8 @@ openai
 pillow
 qrcode
 weasyprint
-pycryptodome
+pycryptodomex
 jinja2
 stripe
 python-multipart
+cryptography

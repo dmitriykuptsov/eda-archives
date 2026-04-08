@@ -18,6 +18,10 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     volumes:
       - ./backend:/app
+      - ./uploads:/storage/uploads
+      - ./reports:/storage/reports
+    ports:
+      - "8000:8000"
     env_file:
       - .env
     depends_on:
@@ -29,6 +33,9 @@ services:
     command: celery -A app.worker.celery worker --loglevel=info
     env_file:
       - .env
+    volumes:
+      - ./uploads:/storage/uploads
+      - ./reports:/storage/reports
     depends_on:
       - redis
       - db
@@ -43,6 +50,9 @@ services:
       MYSQL_DATABASE: eda_archives
     ports:
       - "3306:3306"
+    volumes:
+      - ./db_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   minio:
     image: minio/minio

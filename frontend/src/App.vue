@@ -1,5 +1,6 @@
 <template>
   <div class="app">
+    <SimpleSpinner v-if="showSpinner" />
     <div class="card">
       <h1>EDA-Archives</h1>
       <p>Create your personalized historical report</p>
@@ -21,6 +22,7 @@
         >
           <p v-if="!file">Drag & Drop your photo or click to upload</p>
           <p v-else>{{ file.name }}</p>
+          <p v-if="missingFile">File is missing</p>
           <input
             type="file"
             ref="fileInput"
@@ -29,7 +31,7 @@
             accept="image/*"
           />
         </div>
-
+        <div class="badge badge-danger" v-if="showMessage">{{message}}</div>
         <button type="submit">Generate Report</button>
       </form>
     </div>
@@ -38,6 +40,7 @@
 
 <script>
 import axios from "axios";
+import SimpleSpinner from "./components/SimpleSpinner.vue";
 
 export default {
   data() {
@@ -47,9 +50,29 @@ export default {
       datetime: "",
       location: "",
       file: null,
+      missingFile: false,
+      showMessage: true,
+      message: "",
+      showSpinner: false
     };
   },
   methods: {
+    formatDate(date) {
+      if (!date) {
+        return;
+      }
+      if (date.getDate() < 10) {
+        var day = "0" + date.getDate();
+      } else {
+        var day = date.getDate();
+      }
+      if (date.getMonth() + 1 < 10) {
+        var month = "0" + (date.getMonth() + 1);
+      } else {
+        var month = (date.getMonth() + 1);
+      }
+      return day + "." + month + "." + date.getFullYear();
+    },
     handleFile(event) {
       this.file = event.target.files[0];
     },
@@ -60,36 +83,35 @@ export default {
       this.$refs.fileInput.click();
     },
     submitForm() {
-      console.log({
-        name: this.name,
-        email: this.email,
-        datetime: this.datetime,
-        location: this.location,
-        file: this.file,
-      });
-      this.file = e.target.files[0];
+      if (!this.file) {
+        this.showMessage = true;
+        this.message = "File is missing";
+        return;
+      }
+      this.missingFile = false;
       const formData = new FormData();
       formData.append("file", this.file);
       formData.append("name", this.name);
-      formData.append("datetime", this.datetime);
+      formData.append("date", this.formatDate(new Date(this.datetime)));
       formData.append("location", this.location);
       formData.append("email", this.email);
 
-      const url = this.$BASE_URL + "/order_without_payment/";
-
+      const url = this.$BASE_URL + "api/order_without_payment";
       this.showSpinner = true;
       axios.post(url, formData).then((response) => {
         this.showSpinner = false;
-        if (!response.data.auth_fail) {
-          this.isAuthenticated = true;
-          this.getVersions();
+        this.showMessage = true;
+        if (response.data.success) {
+          this.message = "Please check your email inbox (" + this.email + "). We will send you link for the report download shortly...";
         } else {
-          this.isAuthenticated = false;
-          this.$router.push("/login/");
+          this.message = response.data.reason;
         }
       });
     },
   },
+  components: {
+    SimpleSpinner,
+  }
 };
 </script>
 

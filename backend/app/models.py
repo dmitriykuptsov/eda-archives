@@ -13,4 +13,4 @@ class Order(Base):
     location = Column(String(100))
     image_path = Column(String(1024))
     pdf_path = Column(String(1024))
-    status = Column(String(50))
+    status = Column(String(50)) 
