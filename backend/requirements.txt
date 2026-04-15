@@ -13,3 +13,8 @@ jinja2
 stripe
 python-multipart
 cryptography
+skyfield
+matplotlib
+geopy
+pandas
+astroquery

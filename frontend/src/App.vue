@@ -1,39 +1,49 @@
 <template>
   <div class="app">
     <SimpleSpinner v-if="showSpinner" />
-    <div class="card">
-      <h1>EDA-Archives</h1>
-      <p>Create your personalized historical report</p>
+    <div class="section">
+      <p class="header">EDA Archives</p>
+      <p class="slogan1">YOUR STORY STARTED HERE</p>
+      <p class="slogan2">Gift Digital Archive: discover what the world was like on the day you were born</p>
+      <button onclick="location.href='#section2'">Open the Archive</button>
+    </div>
 
-      <form @submit.prevent="submitForm" class="form">
-        <input type="text" v-model="name" placeholder="Full Name" required />
+    <div id="section2" class="section">
+      <!-- img src="@/assets/main.jpg" width="200px;" -->
+        <div class="card">
+          <h1>EDA-Archives</h1>
+          <p>Create your personalized historical report</p>
 
-        <input type="email" v-model="email" placeholder="Email Address" required />
+          <form @submit.prevent="submitForm" class="form">
+            <input type="text" v-model="name" placeholder="Full Name" required />
 
-        <input type="date" v-model="datetime" required />
+            <input type="email" v-model="email" placeholder="Email Address" required />
 
-        <input type="text" v-model="location" placeholder="Birth Location" required />
+            <input type="date" v-model="datetime" required />
 
-        <div
-          class="dropzone"
-          @dragover.prevent
-          @drop.prevent="handleDrop"
-          @click="triggerFile"
-        >
-          <p v-if="!file">Drag & Drop your photo or click to upload</p>
-          <p v-else>{{ file.name }}</p>
-          <p v-if="missingFile">File is missing</p>
-          <input
-            type="file"
-            ref="fileInput"
-            @change="handleFile"
-            hidden
-            accept="image/*"
-          />
+            <input type="text" v-model="location" placeholder="Birth Location" required />
+
+            <div
+              class="dropzone"
+              @dragover.prevent
+              @drop.prevent="handleDrop"
+              @click="triggerFile"
+            >
+              <p v-if="!file">Drag & Drop your photo or click to upload</p>
+              <p v-else>{{ file.name }}</p>
+              <p v-if="missingFile">File is missing</p>
+              <input
+                type="file"
+                ref="fileInput"
+                @change="handleFile"
+                hidden
+                accept="image/*"
+              />
+            </div>
+            <div class="badge badge-danger" v-if="showMessage">{{message}}</div>
+            <button type="submit">Generate Report</button>
+          </form>
         </div>
-        <div class="badge badge-danger" v-if="showMessage">{{message}}</div>
-        <button type="submit">Generate Report</button>
-      </form>
     </div>
   </div>
 </template>
@@ -116,23 +126,33 @@ export default {
 </script>
 
 <style>
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
+  background-image: url("@/assets/background.jpg");
   color: white;
 }
 
-.app {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.section {
   height: 100vh;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  justify-content: center;
+  align-items: center;
+}
+
+.app {
+  height: 200vh;
 }
 
 .card {
-  background: #111827;
+  background: #ab8d22;
   padding: 30px;
   border-radius: 16px;
   width: 400px;
@@ -142,13 +162,28 @@ body {
   text-align: center;
 }
 
+.header {
+  font-size: 20px;
+  font-weight: bolder;
+}
+
+.slogan1 {
+  font-size: 50px;
+  font-weight: bolder;
+}
+
+.slogan2 {
+  font-size: 30px;
+  font-weight: bolder;
+}
+
 h1 {
   margin-bottom: 5px;
 }
 
 p {
   margin-bottom: 20px;
-  color: #9ca3af;
+  color: #ffffff;
 }
 
 .form {
@@ -161,16 +196,16 @@ input {
   padding: 12px;
   border-radius: 10px;
   border: none;
-  background: #1f2937;
+  background: #403200;
   color: white;
 }
 
 input::placeholder {
-  color: #6b7280;
+  color: #ffffff;
 }
 
 .dropzone {
-  border: 2px dashed #38bdf8;
+  border: 2px dashed #ffffff;
   padding: 20px;
   border-radius: 12px;
   cursor: pointer;
@@ -185,8 +220,8 @@ button {
   margin-top: 10px;
   padding: 12px;
   border: none;
-  border-radius: 10px;
-  background: #38bdf8;
+  border-radius: 30px;
+  background: #ffffff;
   color: black;
   font-weight: bold;
   cursor: pointer;
@@ -194,6 +229,6 @@ button {
 }
 
 button:hover {
-  background: #0ea5e9;
+  background: #4d401d;
 }
 </style>

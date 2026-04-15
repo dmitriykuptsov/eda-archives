@@ -11,7 +11,7 @@ def generate_facts(date):
         model=model,
         messages=[{
             "role": "user",
-            "content": f"Give structured JSON list of 10 worldwide historical facts for {date}. The JSON output should contain at the top level headlines element with title and description elements inside"
+            "content": f"Give structured JSON list of 4 worldwide non-political historical facts for {date}. The JSON output should contain at the top level headlines element with title and description elements inside"
         }],
         response_format={"type": "json_object"}
     )
@@ -45,7 +45,7 @@ def generate_prices(date):
         model=model,
         messages=[{
             "role": "user",
-            "content": f"Give structured JSON list with prices for gold, gasoline, milk, break, housing for {date} in US. The output should contain at the top level item element with title and price as a single number elements inside"
+            "content": f"Give structured JSON list with prices for gold, gasoline, milk, break, housing and salary for {date} in US. The output should contain at the top level element should be called items with title and price as a single number elements inside"
         }],
         response_format={"type": "json_object"}
     )
