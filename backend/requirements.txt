@@ -17,4 +17,3 @@ skyfield
 matplotlib
 geopy
 pandas
-astroquery

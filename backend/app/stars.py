@@ -21,8 +21,15 @@ stars = pd.read_csv(
     #"hip_main.dat",
     sep="|",
     header=None,
-    skipinitialspace=True
+    skipinitialspace=True,
+    na_values=["", " "],
+    engine="python"
 )
+
+stars = stars[[1, 8, 9, 5]]  # HIP, Vmag, RAdeg, DEdeg
+stars.columns = ["hip", "magnitude", "ra_degrees", "dec_degrees"]
+stars = stars.apply(pd.to_numeric, errors="coerce")
+stars = stars.dropna(subset=["ra_degrees", "dec_degrees"])
 
 hip_to_name_mag = [
     (32349, "Sirius", -1.46),
@@ -77,10 +84,6 @@ hip_to_name_mag = [
     (39953, "Adhara", 1.50),
 ]
 
-stars = stars[[1, 5, 6, 8]]
-stars.columns = ["hip", "ra_degrees", "dec_degrees", "magnitude"]
-stars = stars.apply(pd.to_numeric, errors="coerce")
-
 def get_stars():
     star_objects = []
     for _, row in stars.iterrows():
@@ -92,7 +95,7 @@ def get_stars():
                     star_objects.append((star, n, row['magnitude']))
     return star_objects
 
-def plot_stars(num, stars, date_str, lat, lng):
+def get_stars_visible(num, stars, date_str, lat, lng):
     planets = load('de421.bsp')
     location = Topos(latitude_degrees=lat, longitude_degrees=lng)
     earth = planets['earth']
@@ -101,8 +104,10 @@ def plot_stars(num, stars, date_str, lat, lng):
     counter = 1
 
     for star, name, mag in stars:
-        for hour in range(18, 24):
+        for hour in range(1, 24):
             ts = load.timescale()
+            if hour < 10:
+                hour = "0" + str(hour)
             t = datetime.strptime(date_str + f" {hour}:00:00", "%d.%m.%Y %H:%M:%S")
             t = t.replace(tzinfo=timezone.utc)
             t = ts.from_datetime(t)
@@ -117,6 +122,8 @@ def plot_stars(num, stars, date_str, lat, lng):
                 break;
         if counter > num:
             break
+
+    """
     buf = io.BytesIO()
     #plt.figure(figsize=(10, 4))
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -144,8 +151,10 @@ def plot_stars(num, stars, date_str, lat, lng):
     #plt.savefig("test.png", format='png', dpi=300, transparent=True)
     plt.savefig(buf, format='png', dpi=1000, transparent=True, bbox_inches='tight', pad_inches=0)
     buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    return img_base64
+    #img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    #return img_base64
+    """
+    return names
 
 def get_coordinates(location: str):
     geolocator = Nominatim(user_agent="eda-archives.com")

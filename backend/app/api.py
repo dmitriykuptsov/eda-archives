@@ -115,10 +115,10 @@ async def create_order_without_payment(
             "reason": "Invalid filename. Should be JPG or JPEG file"
         }
     
-    if not re.match(r"^[A-Za-z]+,\s{0,1}[A-Z]{2}$", location):
+    if not re.match(r"^[A-Za-z]+,\s{0,1}[A-Za-z]{2,10}$", location):
         return {
             "success": False, 
-            "reason": "Invalid location. Should be city, state"
+            "reason": "Invalid location. Should be city, state. Example: Hamilton, OH"
         }
     
     if not re.match(r"^[A-Za-z\_0-9\.\-]+@[A-Za-z0-9]+\.[a-z]+$", email):
@@ -259,6 +259,6 @@ def download_pdf(order_id: int, secret: str):
 
     return FileResponse(
         path=order.pdf_path,
-        media_type="application/pdf",
-        filename=f"eda_report_{order_id}.pdf"
+        media_type="html/text",
+        filename=f"eda_report_{order_id}.html"
     )

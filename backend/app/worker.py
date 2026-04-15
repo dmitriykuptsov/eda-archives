@@ -13,7 +13,7 @@ import base64
 from app.email_helper import send_download_link
 from app.stars import get_coordinates
 from app.stars import get_stars
-from app.stars import plot_stars
+from app.stars import get_stars_visible
 import io
 
 celery = Celery(__name__, broker="redis://redis:6379/0")
@@ -70,7 +70,8 @@ def generate_report(order_id):
 
     stars = get_stars()
     (lat, lng) = get_coordinates(order.location)
-    sky_base64 = f"data:image/png;base64,{plot_stars(5, stars, order.date, lat, lng)}"
+    #sky_base64 = f"data:image/png;base64,{plot_stars(5, stars, order.date, lat, lng)}"
+    stars = get_stars_visible(5, stars, order.date, lat, lng)
 
     # 4. Render HTML
     html = Template(HTML_TEMPLATE).render(
@@ -82,7 +83,7 @@ def generate_report(order_id):
         songs=songs,
         prices=prices,
         photo=img_base64,
-        sky=sky_base64,
+        stars=stars,
         spotify=qr_spotify,
         imdb=qr_imdb
     )
@@ -96,11 +97,11 @@ def generate_report(order_id):
         f.write(html)
 
     # 6. Save result
-    order.pdf_path = pdf_path
+    order.pdf_path = html_path
     order.status = "done"
     db.commit()
 
     send_download_link(order.email, str(order.id), order.secret)
 
-    print(f"Report generated: {pdf_path}")
+    print(f"Report generated: {html_path}")
     
