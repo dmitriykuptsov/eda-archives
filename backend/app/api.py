@@ -146,7 +146,7 @@ async def create_order_without_payment(
     with open(file_path, "wb") as f:
         f.write(file_bytes)
 
-    secret = hexlify(urandom(128)).decode("ASCII")
+    secret = hexlify(urandom(16)).decode("ASCII")
     order = create_order(secret, date, location, name, email, file_path)
     trigger_task(order.id)
 

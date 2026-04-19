@@ -11,42 +11,47 @@ def generate_facts(date):
         model=model,
         messages=[{
             "role": "user",
-            "content": f"Give structured JSON list of 4 worldwide non-political historical facts for {date}. The JSON output should contain at the top level headlines element with title and description elements inside"
-        }],
-        response_format={"type": "json_object"}
+            "content": f"Respond in clean HTML only. Use <b> tags. No markdown. Describe in two, three sentences what have happened on {date} without politics, include several major events. Please, include 3 facts but omit the music and movies."
+        }]
     )
-    return loads(response.choices[0].message.content)
+    return response.choices[0].message.content
 
-
-def generate_movies(date):
+def generate_astrology_facts(date):
     response = client.chat.completions.create(
         model=model,
         messages=[{
             "role": "user",
-            "content": f"Give structured JSON list of 3 top movies for {date} worldwide. The JSON output should contain at the top level movies element with title and description elements inside"
-        }],
-        response_format={"type": "json_object"}
+            "content": f"Respond in clean HTML only. Use <b> tags. No markdown. Give the description of the astrological facts for the {date}. Provide three sentences description"
+        }]
     )
-    return loads(response.choices[0].message.content)
+    return response.choices[0].message.content
 
-def generate_songs(date):
+def generate_movie_fact(date):
     response = client.chat.completions.create(
         model=model,
         messages=[{
             "role": "user",
-            "content": f"Give structured JSON list of 3 hit songs for {date} worldwide. The output should contain at the top level songs element with title and description elements inside"
-        }],
-        response_format={"type": "json_object"}
+            "content": f"Respond in clean HTML only. Use <b> tags. No markdown. Give the description of top movie for the {date}. Provide two sentences description."
+        }]
     )
-    return loads(response.choices[0].message.content)
+    return response.choices[0].message.content
 
-def generate_prices(date):
+def generate_song_fact(date):
     response = client.chat.completions.create(
         model=model,
         messages=[{
             "role": "user",
-            "content": f"Give structured JSON list with prices for gold, gasoline, milk, break, housing and salary for {date} in US. The output should contain at the top level element should be called items with title and price as a single number elements inside"
-        }],
-        response_format={"type": "json_object"}
+            "content": f"Respond in clean HTML only. Use <b> tags. No markdown. Give the description of top music hit for the {date}. Provide two sentences description."
+        }]
     )
-    return loads(response.choices[0].message.content)
+    return response.choices[0].message.content
+
+def generate_prices_and_trands(date):
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{
+            "role": "user",
+            "content": f"Respond in clean HTML only. Use <b> tags. No markdown. Provide description of the mood of the day for {date}. Include prices for 5 major goods, include what was trending in fashion. Also include the exchange rates for the major currencies. Please keep it short 3 sentences is enough."
+        }]
+    )
+    return response.choices[0].message.content

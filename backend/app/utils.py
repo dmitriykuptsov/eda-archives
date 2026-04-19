@@ -33,3 +33,10 @@ def validate_jpeg(image_bytes):
 def is_jpeg_magic(image_bytes):
     header = image_bytes[0:3]
     return header == b'\xff\xd8\xff'
+
+def get_date_formatted(dt):
+    day = dt.day
+    year = dt.year
+    month = dt.strftime("%B")
+
+    return f"{month} the {day}th, {year}"
