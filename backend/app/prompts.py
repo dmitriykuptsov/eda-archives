@@ -55,3 +55,13 @@ def generate_prices_and_trands(date):
         }]
     )
     return response.choices[0].message.content
+
+def generate_political_news(date):
+    response = client.chat.completions.create(
+        model=model,
+        messages=[{
+            "role": "user",
+            "content": f"Respond in clean HTML only. Use <b> tags. No markdown. Provide description one or two major political events for {date}. Please keep it short."
+        }]
+    )
+    return response.choices[0].message.content
