@@ -3,7 +3,7 @@ from email.message import EmailMessage
 import os
 
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS") if os.getenv("EMAIL_ADDRESS") else "dmitriy.kuptsov@gmail.com"
-EMAIL_PASSWORD = "ctss qyjr onlq zxis"; #os.getenv("EMAIL_PASSWORD") if os.getenv("EMAIL_PASSWORD") else "FUCK YOU UP"
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD") if os.getenv("EMAIL_PASSWORD") else "FUCK YOU UP"
 DOWNLOAD_LINK = os.getenv("EMAIL_PASSWORD") if os.getenv("EMAIL_PASSWORD") else "http://localhost/api/download/#order/#token"
 
 def send_download_link(recipient, order, token):

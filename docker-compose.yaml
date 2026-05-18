@@ -10,8 +10,23 @@ services:
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - ./static:/var/www/static
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
     depends_on:
       - backend
+    restart: always
+
+  #certbot:
+  #  image: certbot/certbot
+  #  volumes:
+  #    - ./certbot/www:/var/www/certbot
+  #    - ./certbot/conf:/etc/letsencrypt
+  #  entrypoint: >
+  #    sh -c "trap exit TERM;
+  #           while :; do
+  #             certbot renew;
+  #             sleep 12h & wait $${!};
+  #           done"
 
   backend:
     build: ./backend
@@ -20,6 +35,8 @@ services:
       - ./backend:/app
       - ./uploads:/storage/uploads
       - ./reports:/storage/reports
+      - ./templates:/storage/templates
+      - ./data:/storage/data
     ports:
       - "8000:8000"
     env_file:
@@ -36,6 +53,8 @@ services:
     volumes:
       - ./uploads:/storage/uploads
       - ./reports:/storage/reports
+      - ./templates:/storage/templates
+      - ./data:/storage/data
     depends_on:
       - redis
       - db
